@@ -1,0 +1,42 @@
+version: 2.1
+
+jobs:
+  spin-up:
+    machine:
+      image:
+    steps:
+      - run:
+          name: Spin up Nginx
+          command: |
+            docker run -d -p "8080:80" --name "fancy-nginx" docker.io/library/nginx:latest
+      - run:
+          name: Wait on application to be ready
+          command: |
+            N=8
+            while [ $N -gt 0 ]
+            do
+              if $(nc -z localhost 8080); then
+                echo "Connected!"
+                exit 0
+              fi
+              echo "Not connected; retrying"
+              N=$(( $N - 1 ))
+              sleep 1
+            done
+            exit 1
+      - run:
+          name: Check containers
+          command: |
+            docker ps -a
+      - run:
+          name: Curl
+          command: |
+            curl -vv http://localhost:8080/50x.html
+            sleep 1
+            
+            curl -vv http://127.0.0.1:8080/50x.html
+
+workflows:
+  main:
+    jobs:
+      - spin-up
