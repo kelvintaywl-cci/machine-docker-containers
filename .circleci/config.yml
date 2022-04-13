@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   spin-up:
     machine:
-      image:
+      image: ubuntu-2004:202111-02
     steps:
       - run:
           name: Spin up Nginx
